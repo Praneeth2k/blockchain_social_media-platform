@@ -12,7 +12,9 @@ import NFT from './artifacts/src/contracts/NFT.sol/NFT.json'
 import Memeit from './artifacts/src/contracts/Memeit.sol/Memeit.json'
 
 
-let rpcEndpoint = null
+// let rpcEndpoint = null
+let rpcEndpoint = "https://polygon-mumbai.infura.io/v3/0c928750a74b4464bbe01fe61286f7a7"
+
 
 if (process.env.REACT_APP_WORKSPACE_URL) {
     rpcEndpoint = process.env.REACT_APP_WORKSPACE_URL
@@ -26,7 +28,7 @@ function Memes() {
 
     useEffect(() => {
         loadMemes() 
-        const interval = setInterval(() => setTime(Date.now()), 10000);
+        const interval = setInterval(() => setTime(Date.now()), 10000000);
         return () => {
             clearInterval(interval);
         };
@@ -39,6 +41,7 @@ function Memes() {
         const nftContract = new ethers.Contract(nftaddress, NFT.abi, provider)
         const memeitContract = new ethers.Contract(memeitaddress, Memeit.abi, provider)
         const data = await memeitContract.fetchAllMemes()
+        console.log(data)
 
         // Get all memes
         const database = await axiosInstance.get('/post')
@@ -46,49 +49,47 @@ function Memes() {
         
         const dataItems = database.data.data.data
 
-        const memeItems = await Promise.all(data.map(async i => {
-            let _id
-            let likes
-            let views
-            let totalRevenue
-            let revenueShare
-
-            const memeId = i.memeId.toNumber()
-            dataItems.forEach((post) => {
-                if(post.memeId === memeId) {
-                    _id = post._id
-                    likes = post.likes
-                    views = post.views
-                    totalRevenue = post.totalRevenue
-                    revenueShare = post.revenueGenerated
+        const memeItems = await Promise.all(dataItems.map(async i => {
+            let meta
+            let price
+            let tokenUri
+            let sold
+            let currentOwner
+            let originalSeller
+            let percentageRevenue
+            for(const post of data) {
+                if(post.memeId.toNumber() === i.memeId) {
+                    tokenUri = await nftContract.tokenURI(post.tokenId)
+                    meta = await axios.get(tokenUri)
+                    console.log(meta)
+                    price = ethers.utils.formatUnits(post.price.toString(), 'ether')
+                    originalSeller = post.originalSeller
+                    currentOwner = post.currentOwner
+                    percentageRevenue = post.percentageRevenueForCurrentOwner.toNumber()
+                    sold = post.sold
+                    console.log(tokenUri)
+                    let meme = {
+                        _id: i._id,
+                        user: meta.data.user,
+                        price,
+                        memeId: i.memeId,
+                        originalSeller,
+                        currentOwner,
+                        image: meta.data.image,
+                        title: meta.data.title,
+                        percentageRevenue,
+                        sold,
+                        likes: i.likes,
+                        views: i.views,
+                        totalRevenue: i.totalRevenue,
+                        revenueShare: i.revenueGenerated
+                    }
+                    console.log(meme)
+                    return meme
+                    
                 }
-            })
-            console.log("_id is ", _id)
-            const tokenUri = await nftContract.tokenURI(i.tokenId)
-            const meta = await axios.get(tokenUri)
-            let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-            console.log(meta.data.image)
-
-            let meme = {
-                _id,
-                user: meta.data.user,
-                price,
-                memeId,
-                originalSeller:  i.originalSeller,
-                currentOwner: i.currentOwner,
-                image: meta.data.image,
-                title: meta.data.title,
-                percentageRevenue: i.percentageRevenueForCurrentOwner.toNumber(),
-                sold: i.sold,
-                likes,
-                views,
-                totalRevenue,
-                revenueShare
             }
-
-            return meme
         }))
-        console.log(memeItems)
 
         setMemes(memeItems)
         setLoadingState('loaded')
