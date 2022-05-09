@@ -26,7 +26,7 @@ function MyCollection() {
         const connection = await web3Modal.connect()
         const provider = new ethers.providers.Web3Provider(connection)
         const signer = provider.getSigner()
-        console.log(await signer.getAddress())
+        const signerAddress = await signer.getAddress()
 
         const memeitContract = new ethers.Contract(memeitaddress, Memeit.abi, signer)
         const nftContract = new ethers.Contract(nftaddress, NFT.abi, provider)
@@ -35,54 +35,108 @@ function MyCollection() {
         const database = await axiosInstance.get('/post')
         console.log(database)
         
-        const dataItems = database.data.data.data
+        let dataItems = database.data.data.data
 
         
-
-        const memeItems = await Promise.all(data.map(async i => {
-            let _id
-            let likes
-            let views
-            let revenueShare
-
-            const memeId = i.memeId.toNumber()
-            dataItems.forEach((post) => {
-                if(post.memeId === memeId) {
-                    _id = post._id
-                    likes = post.likes
-                    views = post.views
-                    revenueShare = post.revenueGenerated
-                }
-            })
-            console.log("_id is ", _id)
-            const tokenUri = await nftContract.tokenURI(i.tokenId)
-            const meta = await axios.get(tokenUri)
-            let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-            console.log(meta.data.image)
-
-            let meme = {
-                _id,
-                user: meta.data.user,
-                price,
-                memeId,
-                originalSeller:  i.originalSeller,
-                currentOwner: i.currentOwner,
-                image: meta.data.image,
-                title: meta.data.title,
-                percentageRevenue: i.percentageRevenueForCurrentOwner.toNumber(),
-                sold: i.sold,
-                likes,
-                views,
-                revenueShare
+        let myDataItems = []
+        for(const d of dataItems){
+            if(d.currentOwner == signerAddress){
+                myDataItems.push(d)
             }
+        }
+        
+        
+        
 
-            return meme
+        const memeItems = await Promise.all(myDataItems.map(async i => {
+            let meta
+            let price
+            let tokenUri
+            let sold
+            let currentOwner
+            let originalSeller
+            let percentageRevenue
+            for(const post of data) {
+                if(post.memeId.toNumber() === i.memeId) {
+                    tokenUri = await nftContract.tokenURI(post.tokenId)
+                    meta = await axios.get(tokenUri)
+                    console.log(meta)
+                    price = ethers.utils.formatUnits(post.price.toString(), 'ether')
+                    originalSeller = post.originalSeller
+                    currentOwner = post.currentOwner
+                    percentageRevenue = post.percentageRevenueForCurrentOwner.toNumber()
+                    sold = post.sold
+                    console.log(tokenUri)
+                    let meme = {
+                        _id: i._id,
+                        user: meta.data.user,
+                        price,
+                        memeId: i.memeId,
+                        originalSeller,
+                        currentOwner,
+                        image: meta.data.image,
+                        title: meta.data.title,
+                        percentageRevenue,
+                        sold,
+                        likes: i.likes,
+                        views: i.views,
+                        totalRevenue: i.totalRevenue,
+                        revenueShare: i.revenueGenerated
+                    }
+                    console.log(meme)
+                    return meme
+                    
+                }
+            }
         }))
         console.log(memeItems)
-
         setMemes(memeItems)
         setLoadingState('loaded')
     }
+        // const memeItems = await Promise.all(data.map(async i => {
+        //     let _id
+        //     let likes
+        //     let views
+        //     let revenueShare
+
+        //     const memeId = i.memeId.toNumber()
+        //     dataItems.forEach((post) => {
+        //         if(post.memeId === memeId) {
+        //             _id = post._id
+        //             likes = post.likes
+        //             views = post.views
+        //             revenueShare = post.revenueGenerated
+        //         }
+        //     })
+        //     console.log("_id is ", _id)
+        //     const tokenUri = await nftContract.tokenURI(i.tokenId)
+        //     const meta = await axios.get(tokenUri)
+        //     let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+        //     console.log(meta.data.image)
+
+        //     let meme = {
+        //         _id,
+        //         user: meta.data.user,
+        //         price,
+        //         memeId,
+        //         originalSeller:  i.originalSeller,
+        //         currentOwner: i.currentOwner,
+        //         image: meta.data.image,
+        //         title: meta.data.title,
+        //         percentageRevenue: i.percentageRevenueForCurrentOwner.toNumber(),
+        //         sold: i.sold,
+        //         likes,
+        //         views,
+        //         revenueShare
+        //     }
+
+        //     return meme
+        // }))
+        // console.log(memeItems)
+
+        // setMemes(memeItems)
+        // setLoadingState('loaded')
+    // }
 
     async function sellNFT(nft, newPrice) {
         console.log(newPrice)
