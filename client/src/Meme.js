@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import axios from './axios'
+import axiosInstance from './axios'
+
 function Meme(props) {
     let meme = props.meme
     let buyNFT = props.buyNFT
@@ -8,6 +10,7 @@ function Meme(props) {
 
     const [price, setPrice] = useState(null)
     const [username, setUsername] = useState(null)
+    const [revenueDistribution, setRevenueDistribution] = useState() 
 
     useEffect(() => {
         getUsername()
@@ -18,6 +21,29 @@ function Meme(props) {
         if(u.data.data){
             setUsername(u.data.data.username)
         }
+        let toBeSetRevenueDistributionArray = []
+        for (const key in revenueShare){
+            console.log(key)
+            let username = key
+            const userProfile = await axiosInstance.get(`/user/walletaddress/${key}`)
+            if(userProfile){
+                console.log(userProfile)
+                if(userProfile.data.data){
+                    if(userProfile.data.data.username){
+                        username = userProfile.data.data.username
+                    }
+    
+                }
+            }
+            toBeSetRevenueDistributionArray.push({username: username, revenueShare: revenueShare[key]})
+            
+        }
+        setRevenueDistribution(toBeSetRevenueDistributionArray)
+        
+        // await Promise.all(revenueShare.forEach(async (value, key, map) => {
+        //     const username = await axiosInstance.get(`/user/walletaddress/${key}`)
+        //     setRevenueDistribution([...revenueDistribution, {[username]: value}])
+        // }))
     }
 
     function renderBottom() {
@@ -35,25 +61,25 @@ function Meme(props) {
     //     } else return address
     // }
 
-    function revenueDistribution() {
-        if(!revenueShare){
-            return null
-        }
+    // function revenueDistribution() {
+    //     if(!revenueShare){
+    //         return null
+    //     }
         
-        return <div class="mt-2 mb-2">
-            <h2 class="font-semibold">Revenue distribution (Total: {meme.totalRevenue} BRO)</h2>
-            {
-                Object.keys(revenueShare).map((key, i) => {
+    //     return <div class="mt-2 mb-2">
+    //         <h2 class="font-semibold">Revenue distribution (Total: {meme.totalRevenue} BRO)</h2>
+    //         {
+    //             Object.keys(revenueShare).map((key, i) => {
                     
-                    return(
-                    <p key={i}>
-                        <span>{key}: {revenueShare[key]} BRO</span>
-                    </p>
-                )})
-            }
+    //                 return(
+    //                 <p key={i}>
+    //                     <span>{key}: {revenueShare[key]} BRO</span>
+    //                 </p>
+    //             )})
+    //         }
             
-        </div>
-    }
+    //     </div>
+    // }
 
     const buyMeme = 
         <div class = "mt-1">
@@ -99,8 +125,18 @@ function Meme(props) {
                 <h3>Revenue share: {meme.percentageRevenue}% </h3>
             </div>
             
-            {revenueDistribution()}
-            
+            {/* {revenueDistribution} */}
+            <div class="mt-2 mb-2">
+                <h2 class="font-semibold">Revenue distribution (Total: {meme.totalRevenue} BRO)</h2>
+
+                {revenueDistribution.map(ele => {
+                    return (
+                    <p>
+                        <span>{ele.username}: {ele.revenueShare} BRO</span>
+                    </p>
+                    )
+                })}
+            </div>
             {
                 renderBottom()
             }
