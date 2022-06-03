@@ -26,7 +26,7 @@ function Navbar(props) {
         setRevenueEarned(result.data.data.Totalrevenue)
     }
     return (
-        <div class="bg-gray-50 sticky w-full top-0 z-10 border-gray-100 border-b-2 dark:bg-gray-900 ">
+        <div class="bg-gray-50 sticky w-full top-0 z-10 border-gray-100 border-b-2 dark:bg-gray-900 mb-5">
             <div class="ml-5 flex flex-row">
                 <div class="flex-grow">
                     <img className="mt-2 w-16 md:w-32" src="./memeandearn.png"/>

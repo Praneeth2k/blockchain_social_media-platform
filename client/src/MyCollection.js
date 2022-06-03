@@ -160,7 +160,6 @@ function MyCollection() {
 
     return (
         <div class="m-auto mt-0 max-w-lg border-2 border-t-0">
-            <h1 className="ml-2 pt-4">Memes you own</h1>
             {
                 memes.map((meme, i) => (<Meme meme={meme} sellNFT={sellNFT} option="3" key={i}/>))
             }
