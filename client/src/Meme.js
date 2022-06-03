@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import axios from './axios'
+import axiosInstance from './axios'
+
 function Meme(props) {
     let meme = props.meme
     let buyNFT = props.buyNFT
@@ -8,6 +10,7 @@ function Meme(props) {
 
     const [price, setPrice] = useState(null)
     const [username, setUsername] = useState(null)
+    const [revenueDistribution, setRevenueDistribution] = useState([]) 
 
     useEffect(() => {
         getUsername()
@@ -18,6 +21,29 @@ function Meme(props) {
         if(u.data.data){
             setUsername(u.data.data.username)
         }
+        let toBeSetRevenueDistributionArray = []
+        for (const key in revenueShare){
+            console.log(key)
+            let username = key
+            const userProfile = await axiosInstance.get(`/user/walletaddress/${key}`)
+            if(userProfile){
+                console.log(userProfile)
+                if(userProfile.data.data){
+                    if(userProfile.data.data.username){
+                        username = userProfile.data.data.username
+                    }
+    
+                }
+            }
+            toBeSetRevenueDistributionArray.push({username: username, revenueShare: revenueShare[key]})
+            
+        }
+        setRevenueDistribution(toBeSetRevenueDistributionArray)
+        
+        // await Promise.all(revenueShare.forEach(async (value, key, map) => {
+        //     const username = await axiosInstance.get(`/user/walletaddress/${key}`)
+        //     setRevenueDistribution([...revenueDistribution, {[username]: value}])
+        // }))
     }
 
     function renderBottom() {
@@ -35,32 +61,32 @@ function Meme(props) {
     //     } else return address
     // }
 
-    function revenueDistribution() {
-        if(!revenueShare){
-            return null
-        }
+    // function revenueDistribution() {
+    //     if(!revenueShare){
+    //         return null
+    //     }
         
-        return <div class="text-center font-mono leading-relaxed mt-2 mb-2 text-green-600">
-            <h2>Revenue distribution (Total: {meme.totalRevenue} BRO)</h2>
-            {
-                Object.keys(revenueShare).map((key, i) => {
+    //     return <div class="mt-2 mb-2">
+    //         <h2 class="font-semibold">Revenue distribution (Total: {meme.totalRevenue} BRO)</h2>
+    //         {
+    //             Object.keys(revenueShare).map((key, i) => {
                     
-                    return(
-                    <p key={i}>
-                        <span>{key}: {revenueShare[key]} BRO</span>
-                    </p>
-                )})
-            }
+    //                 return(
+    //                 <p key={i}>
+    //                     <span>{key}: {revenueShare[key]} BRO</span>
+    //                 </p>
+    //             )})
+    //         }
             
-        </div>
-    }
+    //     </div>
+    // }
 
     const buyMeme = 
         <div class="flex space-x-2 justify-center">
             {meme.sold? <span class="text-xs py-1.5 px-2.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-red-600 text-white rounded-full m-5">Meme Not for sale</span>:
             <div class="flex space-x-2 justify-center">
             <div>
-              <button type="button" class="inline-block px-6 pt-2.5 pb-2 bg-blue-600 text-white font-medium text-xs leading-normal uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex align-center m-5" onClick = {()=>buyNFT(meme)}>
+              <button type="button" class="px-6 pt-2.5 pb-2 bg-blue-600 text-white font-medium text-xs leading-normal uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out flex align-center m-5" onClick = {()=>buyNFT(meme)}>
                 <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="download"
                   class="w-3 mr-2" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                   <path fill="currentColor"
@@ -119,8 +145,18 @@ function Meme(props) {
                 <h3>Revenue share: {meme.percentageRevenue}% </h3>
         </div>
             
-            {revenueDistribution()}
-            
+            {/* {revenueDistribution} */}
+            <div class="mt-2 mb-2">
+                <h2 class="font-semibold">Revenue distribution (Total: {meme.totalRevenue} BRO)</h2>
+
+                {revenueDistribution.map(ele => {
+                    return (
+                    <p>
+                        <span>{ele.username}: {ele.revenueShare} BRO</span>
+                    </p>
+                    )
+                })}
+            </div>
             {
                 renderBottom()
             }
