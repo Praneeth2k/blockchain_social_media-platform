@@ -37,4 +37,43 @@ const updateUser =
         })
     })
 
-export default {getUser, updateUser}
+const updateUserProfile = 
+    catchAsync(async(req,res,next) => {
+        const accountAddress = req.body.accountAddress
+        console.log(req.body)
+        const username = req.body.username
+        await User.findOneAndUpdate({accountAddress}, {username}, {new:true, upsert:true})
+        res.status(200).json({
+            status: 'success',
+            data: {
+                accountAddress,
+                username
+            }
+        })
+    })
+
+const updateWithdrawAmount = 
+    catchAsync(async(req,res,next) => {
+        const accountAddress = req.body.accountAddress
+        const withdrawAmount = req.body.withdrawAmount
+        const userProfile = await User.findOne({accountAddress})
+        console.log(userProfile)
+        let newWithdrawAmount
+        if(userProfile){
+            if(userProfile.totalWithdrawAmount){
+                newWithdrawAmount = userProfile.totalWithdrawAmount + withdrawAmount
+            } else{
+                newWithdrawAmount = withdrawAmount
+            }
+        } else {
+            newWithdrawAmount = withdrawAmount
+        }
+        await User.findOneAndUpdate({accountAddress}, {"totalWithdrawAmount": newWithdrawAmount}, {new:true, upsert:true})
+
+        res.status(200).json({
+            status: 'success',
+            totalWithdrawAmount: newWithdrawAmount
+        })
+    })
+
+export default {getUser, updateUser, updateUserProfile, updateWithdrawAmount}

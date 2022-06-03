@@ -10,6 +10,15 @@ router
     .get(userController.getUser)
     .patch(userController.updateUser)
 
+router
+    .route('/userProfile')
+    .patch(userController.updateUserProfile)
+
+
+router
+    .route('/withdrawAmount')
+    .patch(userController.updateWithdrawAmount)
+
 export default router;
 
 
