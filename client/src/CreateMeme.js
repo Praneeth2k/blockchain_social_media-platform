@@ -178,7 +178,7 @@ function CreateMeme() {
     </div>
     <div class="mt-5 md:mt-0 md:col-span-2">
     <h1 className="ml-2 mt-3 text-2xl text-pink-500 mb-4">Create a meme</h1>
-      <form action="#" method="POST">
+      
         <div class="shadow sm:rounded-md sm:overflow-hidden">
           <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
             <div class="grid grid-cols-3 gap-6">
@@ -268,7 +268,7 @@ function CreateMeme() {
             </button>
           </div>
         </div>
-      </form>
+      
     </div>
   </div>
 </div>
