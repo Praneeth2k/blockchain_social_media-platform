@@ -10,7 +10,8 @@ const userSchema = mongoose.Schema(
             type: String
         },
         totalWithdrawAmount: {
-            type: Number
+            type: Number,
+            default: 0
         }
     }
 )
