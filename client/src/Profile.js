@@ -25,7 +25,7 @@ function Profile() {
         console.log(result)
         setRevenueEarned(result.data.data.Totalrevenue)
 
-        const userInfo = await axios.get(`/user/${signerAddress}`)
+        const userInfo = await axios.get(`/user/walletaddress/${signerAddress}`)
         if(userInfo.data.data){
             let wa = userInfo.data.data.totalWithdrawAmount
             let un = userInfo.data.data.username

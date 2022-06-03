@@ -17,7 +17,7 @@ function Meme(props) {
     }, [])
 
     async function getUsername() {
-        const u = await axios.get(`/user/${meme.user}`)
+        const u = await axios.get(`/user/walletaddress/${meme.user}`)
         if(u.data.data){
             setUsername(u.data.data.username)
         }

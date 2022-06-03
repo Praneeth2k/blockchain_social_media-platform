@@ -37,4 +37,4 @@ const updateUser =
         })
     })
 
-export default {getUser, updateUser, getUserInfo, updateUserProfile, updateWithdrawAmount}
+export default {getUser, updateUser}
