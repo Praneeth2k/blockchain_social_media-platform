@@ -27,11 +27,12 @@ function MyCollection() {
         const provider = new ethers.providers.Web3Provider(connection)
         const signer = provider.getSigner()
         const signerAddress = await signer.getAddress()
+        console.log(signerAddress)
 
         const memeitContract = new ethers.Contract(memeitaddress, Memeit.abi, signer)
         const nftContract = new ethers.Contract(nftaddress, NFT.abi, provider)
         const data = await memeitContract.fetchMyNFTs()
-
+        console.log(data)
         const database = await axiosInstance.get('/post')
         console.log(database)
         

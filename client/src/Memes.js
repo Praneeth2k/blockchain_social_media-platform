@@ -109,11 +109,7 @@ function Memes() {
         const signerAddress = await signer.getAddress()
         console.log(nft._id)
 
-        const update = JSON.stringify({
-            currentOwner: signerAddress
-        })
-
-        await axiosInstance.patch(`/post/${nft._id}`, update, {headers: {'Content-Type': 'application/json'}})
+        await axiosInstance.patch(`/post/${nft._id}`, {currentOwner: signerAddress}, {headers: {'Content-Type': 'application/json'}})
         loadMemes()
     }
 
