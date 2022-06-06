@@ -5,6 +5,10 @@ import userController from "./../controllers/userController.js"
 
 const router = express.Router()
 
+router
+    .route('/walletaddress/:user')
+    .get(userController.getUser)
+    .patch(userController.updateUser)
 
 router
     .route('/userProfile')
@@ -14,14 +18,6 @@ router
 router
     .route('/withdrawAmount')
     .patch(userController.updateWithdrawAmount)
-
-router
-    .route('/:user')
-    .get(userController.getUserInfo)
-
-
-
-
 
 export default router;
 

@@ -27,11 +27,12 @@ function MyCollection() {
         const provider = new ethers.providers.Web3Provider(connection)
         const signer = provider.getSigner()
         const signerAddress = await signer.getAddress()
+        console.log(signerAddress)
 
         const memeitContract = new ethers.Contract(memeitaddress, Memeit.abi, signer)
         const nftContract = new ethers.Contract(nftaddress, NFT.abi, provider)
         const data = await memeitContract.fetchMyNFTs()
-
+        console.log(data)
         const database = await axiosInstance.get('/post')
         console.log(database)
         
@@ -160,7 +161,6 @@ function MyCollection() {
 
     return (
         <div class="m-auto mt-0 max-w-lg border-2 border-t-0">
-            <h1 className="ml-2 pt-4">Memes you own</h1>
             {
                 memes.map((meme, i) => (<Meme meme={meme} sellNFT={sellNFT} option="3" key={i}/>))
             }

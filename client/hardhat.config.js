@@ -21,7 +21,17 @@ module.exports = {
       accounts: [privateKey]
     } 
   },
-  solidity: "0.8.4",
+  solidity: 
+  {
+    compilers: [
+      {
+        version: "0.6.7" ,
+      },
+      {
+        version: "0.8.4",
+      },
+    ],
+  },
   paths: {
     sources: "./src/contracts",
     tests: "./test",
