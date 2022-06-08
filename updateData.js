@@ -20,27 +20,28 @@ const updateData = async () => {
 
         const revenueGenerated = post.revenueGenerated
 
-        const updatedRevenueGenerated = {}
+        const updatedRevenueGenerated = revenueGenerated
+        console.log(revenueGenerated)
         
         if(revenueGenerated.get(originalSeller)) {
-            updatedRevenueGenerated[originalSeller] = revenueGenerated.get(originalSeller) + originalSellerShare
+            updatedRevenueGenerated.set(originalSeller, revenueGenerated.get(originalSeller) + originalSellerShare)
         } else {
-            updatedRevenueGenerated[originalSeller] = originalSellerShare
+            updatedRevenueGenerated.set(originalSeller, originalSellerShare)
         }
         if(revenueGenerated.get(currentOwner)) {
             if(currentOwner === originalSeller){
-                updatedRevenueGenerated[currentOwner] += ownerShare 
+                updatedRevenueGenerated.set(currentOwner, updatedRevenueGenerated.get(currentOwner) + ownerShare) 
             } else{
-            updatedRevenueGenerated[currentOwner] = revenueGenerated.get(currentOwner) + ownerShare
+            updatedRevenueGenerated.set(currentOwner, revenueGenerated.get(currentOwner) + ownerShare)
             }
         } else {
             if(currentOwner === originalSeller){
-                updatedRevenueGenerated[currentOwner] += ownerShare 
+                updatedRevenueGenerated.set(currentOwner, updatedRevenueGenerated.get(currentOwner)+ownerShare)
             } else{
-            updatedRevenueGenerated[currentOwner] = ownerShare
+            updatedRevenueGenerated.set(currentOwner, ownerShare)
             }
         }
-
+        console.log(updatedRevenueGenerated)
         
         await Post.updateOne({_id: post._id}, {'revenueGenerated': updatedRevenueGenerated})
     })

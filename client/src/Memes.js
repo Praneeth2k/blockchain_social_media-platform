@@ -28,7 +28,7 @@ function Memes() {
 
     useEffect(() => {
         loadMemes() 
-        const interval = setInterval(() => setTime(Date.now()), 10000000);
+        const interval = setInterval(() => setTime(Date.now()), 4000);
         return () => {
             clearInterval(interval);
         };

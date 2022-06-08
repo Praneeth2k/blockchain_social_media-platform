@@ -145,11 +145,20 @@ function MyCollection() {
         const connection = await web3Modal.connect()
         const provider = new ethers.providers.Web3Provider(connection)
         const signer = provider.getSigner()
-        const contract = new ethers.Contract(memeitaddress, Memeit.abi, signer)
+        const signerAddress = await signer.getAddress()
+        
+        const contract1 = new ethers.Contract(nftaddress, NFT.abi, signer)
+        const isApprovedForAll = await contract1.isApprovedForAll(signerAddress, memeitaddress)
+        if(!isApprovedForAll){
+            const transaction1 = await contract1.setApprovalForAll(memeitaddress, true)
+            transaction1.wait()
+        }
+
+        const contract2 = new ethers.Contract(memeitaddress, Memeit.abi, signer)
 
         const price = ethers.utils.parseUnits(newPrice.toString(), 'ether')
-        const transaction = await contract.sellNFT(nftaddress, nft.memeId, price)
-        await transaction.wait()
+        const transaction2 = await contract2.sellNFT(nftaddress, nft.memeId, price)
+        await transaction2.wait()
 
 
         loadMemes()
