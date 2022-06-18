@@ -49,9 +49,10 @@ function Profile() {
         const signerAddress = await signer.getAddress()
 
         //const provider = new ethers.providers.JsonRpcProvider(rpcEndpoint)
-
+        
+        let rev = Math.floor(revenueEarned)
         const memeitContract = new ethers.Contract(memeitaddress, Memeit.abi, signer)
-        await memeitContract.withdrawTokens(tokenaddress, signerAddress, revenueEarned)
+        await memeitContract.withdrawTokens(tokenaddress, signerAddress, rev)
         await axios.patch(`/user/withdrawAmount/`, {accountAddress: signerAddress,withdrawAmount: revenueEarned - alreadyWithdrawn})
         getUserReveune()
     }
@@ -93,8 +94,8 @@ function Profile() {
   <div class="mt-8 sm:grid grid-cols-3 sm:space-x-4">
     <div class="bg-slate-600 p-6 rounded-md mb-4">
       <span class="text-slate-400 text-md">MEME AND EARN</span>
-      <h2 class='mt-3'>BRO Token contract: <a class="text-blue-600" target="_blank" href="https://mumbai.polygonscan.com/address/0x81336889E94B3E48DEE225AD7e3dF0142f793d14">BRO Token</a></h2>
-      <h2>Import this token address in your wallet to check if you recieved the tokens: 0x81336889E94B3E48DEE225AD7e3dF0142f793d14</h2>
+      <h2 class='mt-3'>BRO Token contract: <a class="text-blue-600" target="_blank" href="https://mumbai.polygonscan.com/address/0x94E723b6fE116E20752D20df549f12f58De45D23">BRO Token</a></h2>
+      <h2>Import this token address in your wallet to check if you recieved the tokens: 0x94E723b6fE116E20752D20df549f12f58De45D23</h2>
     </div>
   </div>
   <div class="sm:grid lg:grid-cols-4 grid-cols-2 sm:gap-x-4">
@@ -133,7 +134,7 @@ function Profile() {
     </div>
     <div class="flex justify-between items-center bg-slate-600 p-6 rounded-md mb-4">
       <div>
-        <span class="text-md text-slate-400">Withdraw</span>
+        <span class="text-md text-slate-400 mr-4">Withdraw</span>
         <button onClick = {handleSubmit} className= "bg-red-500 rounded p-1 text-white mt-2 text-base">Withdraw {revenueEarned - alreadyWithdrawn}</button>
       </div>
       <div>

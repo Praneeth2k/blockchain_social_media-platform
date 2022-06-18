@@ -172,8 +172,8 @@ function CreateMeme() {
         <h1 class="mt-3">Transaction 1: For minting NFT {processing1? processing1==="true"? <span class="bg-yellow-500 rounded p-1 ml-2">Processing...</span>:<span class="bg-green-400 rounded p-1 ml-2">Done</span>:null}</h1>
         <h1>Transaction 2: For putting your meme on sale {processing2? processing2==="true"? <span class="bg-yellow-500 rounded p-1 ml-2">Processing...</span>:<span class="bg-green-400 rounded p-1 ml-2">Done</span>:null}</h1>
 
-        <h1 class="mt-4">NFT contract for minting: <a href='https://mumbai.polygonscan.com/address/0x1f3c3587d794ab223644b0619d94Db79777d41dB' target="_blank" class="text-blue-600">NFT contract</a></h1>
-        <h1>Platform contract for creating sale: <a href='https://mumbai.polygonscan.com/address/0x13eC2C89EcE4e36F45E4b89eCd79182E8E68a11C' target="_blank" class="text-blue-600">Platform contract</a></h1>
+        <h1 class="mt-4">NFT contract for minting: <a href='https://mumbai.polygonscan.com/address/0xB0e9e4dB0Aeb567dCf899C8d399c29634bB576Db' target="_blank" class="text-blue-600">NFT contract</a></h1>
+        <h1>Platform contract for creating sale: <a href='https://mumbai.polygonscan.com/address/0xD8011EAD62bADd7C74fA4A13c105bb641494AB76' target="_blank" class="text-blue-600">Platform contract</a></h1>
       </div>
     </div>
     <div class="mt-5 md:mt-0 md:col-span-2">

@@ -3,6 +3,8 @@ const { ethers } = require("hardhat");
 
 describe("Memeit platform", function () {
   it("Should disperse revenue", async function () {
+
+    // Deploy BRO token
     const initialSupply = ethers.utils.parseUnits('1000000', 'ether') // 1 million
     const Token = await ethers.getContractFactory("Token")
     const token = await Token.deploy(initialSupply)
@@ -10,50 +12,42 @@ describe("Memeit platform", function () {
 
     const [deployer, owner, user1, user2, user3] = await ethers.getSigners()
 
+    // Check if deployer gets all of the initial supply
     let balance = await token.balanceOf(deployer.address)
-
     expect(balance.toString()).to.equal(initialSupply)
 
-
+    // Deploy memeit
     const Memeit = await ethers.getContractFactory("Memeit");
     const memeit = await Memeit.deploy();
     await memeit.deployed();
-
-    const memeitAddress = memeit.address // This address is passed on to the NFT contract below. NFT contract gives this address 
-                                           //the approval to transact a created token between users (or to itself also).
-                                           //Basically, this address acts as an intermediary during token transfer.
+    const memeitAddress = memeit.address
 
     // Send some bro tokens to memeit platform
-
     let transferAmount = ethers.utils.parseUnits('100000', 'ether') // 100k
     await token.transfer(memeitAddress, transferAmount)
     expect(await token.balanceOf(memeitAddress)).to.equal(transferAmount)
 
 
-    
+    // Deploy NFT
     const NFT = await ethers.getContractFactory("NFT");
     const nft = await NFT.deploy(memeitAddress);
     await nft.deployed();
 
     const nftContractAddress = nft.address
 
+    // Create an NFT and put it on sale
     let transaction = await nft.connect(owner).createToken("www.tokenURI1")
-
     let tx = await transaction.wait()
-
     let event = tx.events[0]
     let value = event.args[2]
     let tokenID1 = value.toNumber()
-    //console.log(tokenID1)
-    // const tokenID2 = await nft.createToken("www.tokenURI2")
-    
-
     let auctionPrice = ethers.utils.parseUnits('10', 'ether')
     transaction = await memeit.connect(owner).createNFT(nftContractAddress, tokenID1, 20, auctionPrice)
     tx = await transaction.wait() 
     event = tx.events[0]
     value = event.args.memeId
     let memeId1 = value.toNumber()
+    expect(await nft.ownerOf(tokenID1)).to.equal(owner.address)
 
 
     //--------------------------------------------------------------------------------//
@@ -64,7 +58,11 @@ describe("Memeit platform", function () {
     // "owner" is the one who minted tokenID1 and is the current owner
     // But user2 is trying to create a sale out of that NFT.
     //const transaction1 = 
-    await expect(memeit.connect(user2).createNFT(nftContractAddress, tokenID1, 20, auctionPrice)).to.be.reverted
+
+    // User 2 tries to create a sale of an NFT owned by user 1 (Should not be allowed)
+    await expect(memeit.connect(user2)
+      .createNFT(nftContractAddress, tokenID1, 20, auctionPrice)).to.be.reverted
+
     //expect(await transaction1.wait()).to.be.reverted
     // let event1 = tx1.events[0]
     // let value1 = event1.args.memeId
@@ -77,21 +75,20 @@ describe("Memeit platform", function () {
 
     //await market.createNFT(nftContractAddress, tokenID2, 15, auctionPrice)
 
+    // Buying an NFT
     await memeit.connect(user1).buyNFT(nftContractAddress, memeId1, { value: auctionPrice})
+    expect(await nft.ownerOf(tokenID1)).to.equal(user1.address)
 
     nftBalance = await nft.balanceOf(user1.address)
 
     
     let revenueGenerated = ethers.utils.parseUnits('100', 'ether')
-
     await memeit.disperseRevenue(token.address, revenueGenerated, memeId1)
 
     // Balance of the platform
     expect(await token.balanceOf(memeitAddress)).to.equal(ethers.utils.parseUnits('99900', 'ether'))
-
     //Balance of the original owner
     expect(await token.balanceOf(owner.address)).to.equal(ethers.utils.parseUnits('72', 'ether'))
-
     // Balance of user who had bought the NFT
     expect(await token.balanceOf(user1.address)).to.equal(ethers.utils.parseUnits('18', 'ether'))
 
@@ -103,23 +100,17 @@ describe("Memeit platform", function () {
     auctionPrice = ethers.utils.parseUnits('15', 'ether')
     transaction = await memeit.connect(user1).sellNFT(nftContractAddress, memeId1, auctionPrice)
 
-    // user2 buys it
-    
+    // user2 buys an nft
     await memeit.connect(user2).buyNFT(nftContractAddress, memeId1, { value: auctionPrice})
 
     // Disperse revenue and see if user2 now got the revenue share
-
     await memeit.disperseRevenue(token.address, revenueGenerated, memeId1)
-
     // Balance of the platform
     expect(await token.balanceOf(memeitAddress)).to.equal(ethers.utils.parseUnits('99800', 'ether'))
-
     //Balance of the original owner 72 + 72
     expect(await token.balanceOf(owner.address)).to.equal(ethers.utils.parseUnits('144', 'ether'))
-
     // Balance of user who had bought the NFT (now user2)
     expect(await token.balanceOf(user2.address)).to.equal(ethers.utils.parseUnits('18', 'ether'))
-
     // Balance of user1 (shouldn't increase as he no longer holds the nft)
     expect(await token.balanceOf(user1.address)).to.equal(ethers.utils.parseUnits('18', 'ether'))
 
@@ -139,9 +130,7 @@ describe("Memeit platform", function () {
           revenueShare: meme.percentageRevenueForCurrentOwner.toNumber()
         }
       )
-
     }))
-    
     console.log(memeItems)
 
     //-------------FETCH MEMES CREATED-----------------//
@@ -186,6 +175,7 @@ describe("Memeit platform", function () {
     
     console.log(memeItems)
 
+    // Faucet which send 100 tokens
     let amt = ethers.utils.parseUnits('100', 'ether')
 
     await memeit.faucet(token.address, user3.address)
